@@ -239,13 +239,13 @@ export function CatalogExplorer({
       {/* Tier 1: Resource Endpoint Pills */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
             {t(profile.lang, "tier1Label")}
           </span>
           <button
             type="button"
             onClick={onResetFilters}
-            className="flex items-center gap-1 text-[11px] font-semibold text-brand-red hover:underline"
+            className="inline-flex min-h-[24px] items-center gap-1 px-1 text-[11px] font-semibold text-[#FF4D58] hover:underline"
           >
             <RotateCcw className="h-3 w-3" aria-hidden="true" />
             <span>{t(profile.lang, "resetFilters")}</span>
@@ -261,10 +261,10 @@ export function CatalogExplorer({
                 type="button"
                 onClick={() => onEndpointChange(id)}
                 className={cn(
-                  "flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition",
+                  "flex min-h-[30px] shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition",
                   active
-                    ? "bg-brand-red text-white shadow-[0_2px_12px_rgba(229,9,20,0.5)]"
-                    : "bg-[#202020] text-neutral-300 hover:bg-[#2c2c2c]"
+                    ? "bg-[#C80812] text-white shadow-[0_2px_12px_rgba(229,9,20,0.5)]"
+                    : "bg-[#202020] text-neutral-200 hover:bg-[#2c2c2c]"
                 )}
               >
                 <Icon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -278,7 +278,7 @@ export function CatalogExplorer({
       {/* Tier 2 & Tier 3 Dynamic Contextual Sub-filters */}
       <div className="space-y-3.5 rounded-2xl border border-white/5 bg-[#181818] p-4">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
-          <span className="min-w-[150px] text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+          <span className="min-w-[150px] text-[11px] font-bold uppercase tracking-wider text-neutral-300">
             {tierConfig.tier2Label}
           </span>
           <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto">
@@ -288,10 +288,10 @@ export function CatalogExplorer({
                 type="button"
                 onClick={() => onTier2Change(opt.id)}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-1 text-xs font-semibold transition",
+                  "min-h-[28px] shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
                   tier2Filter === opt.id
-                    ? "bg-brand-red text-white shadow-[0_2px_10px_rgba(229,9,20,0.45)]"
-                    : "bg-[#222226] text-neutral-300 hover:bg-[#2d2d33]"
+                    ? "bg-[#C80812] text-white shadow-[0_2px_10px_rgba(229,9,20,0.45)]"
+                    : "bg-[#222226] text-neutral-200 hover:bg-[#2d2d33]"
                 )}
               >
                 {opt.label}
@@ -302,7 +302,7 @@ export function CatalogExplorer({
 
         <div className="flex flex-col justify-between gap-3 border-t border-white/5 pt-2.5 sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="min-w-[150px] text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+            <span className="min-w-[150px] text-[11px] font-bold uppercase tracking-wider text-neutral-300">
               {tierConfig.tier3Label}
             </span>
             <div className="flex flex-wrap items-center gap-2">
@@ -312,10 +312,10 @@ export function CatalogExplorer({
                   type="button"
                   onClick={() => onTier3Change(opt.id)}
                   className={cn(
-                    "rounded-full border px-3 py-1 text-[11px] font-semibold transition",
+                    "min-h-[28px] rounded-full border px-3 py-1 text-[11px] font-semibold transition",
                     tier3Filter === opt.id
                       ? "border-brand-gold bg-brand-gold/15 text-brand-gold"
-                      : "border-white/10 bg-[#121212] text-neutral-400 hover:text-white"
+                      : "border-white/15 bg-[#121212] text-neutral-300 hover:text-white"
                   )}
                 >
                   {opt.label}
@@ -327,22 +327,23 @@ export function CatalogExplorer({
           {/* Search (?search=) */}
           <div className="relative w-full sm:w-64">
             <Search
-              className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500"
+              className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
               aria-hidden="true"
             />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => onSearchChange(e.target.value)}
+              aria-label={t(profile.lang, "filterSearchPlaceholder")}
               placeholder={t(profile.lang, "filterSearchPlaceholder")}
-              className="w-full rounded-full border border-white/10 bg-[#121212] py-1.5 pr-8 pl-8 text-xs text-white outline-none transition placeholder:text-neutral-500 focus:border-brand-red"
+              className="w-full rounded-full border border-white/15 bg-[#121212] py-1.5 pr-8 pl-8 text-xs text-white outline-none transition placeholder:text-neutral-400 focus:border-brand-red"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
                 aria-label="Clear filter search"
-                className="absolute top-1/2 right-2.5 -translate-y-1/2 text-neutral-400 hover:text-white"
+                className="absolute top-1/2 right-1.5 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-neutral-300 hover:text-white"
               >
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
@@ -354,13 +355,18 @@ export function CatalogExplorer({
       {/* Control Bar: Sort & Official API Pagination (?max & ?page) */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#181818] p-3.5 text-xs">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <span className="font-medium text-neutral-400">
+          <label
+            htmlFor="catalogSortSelect"
+            className="font-medium text-neutral-300"
+          >
             {t(profile.lang, "sortBy")}
-          </span>
+          </label>
           <select
+            id="catalogSortSelect"
+            aria-label={t(profile.lang, "sortBy")}
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="cursor-pointer rounded-full border border-white/10 bg-neutral-800 px-3.5 py-1.5 text-neutral-200 outline-none hover:text-white"
+            className="min-h-[30px] cursor-pointer rounded-full border border-white/15 bg-neutral-800 px-3.5 py-1.5 text-neutral-100 outline-none hover:text-white"
           >
             <option value="default">{t(profile.lang, "sortDefault")}</option>
             <option value="az">{t(profile.lang, "sortAZ")}</option>
@@ -371,13 +377,18 @@ export function CatalogExplorer({
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-neutral-400">
+            <label
+              htmlFor="catalogMaxSelect"
+              className="text-[11px] text-neutral-300"
+            >
               {t(profile.lang, "apiLimitLabel")}
-            </span>
+            </label>
             <select
+              id="catalogMaxSelect"
+              aria-label={t(profile.lang, "apiLimitLabel")}
               value={max}
               onChange={(e) => onMaxChange(Number(e.target.value))}
-              className="cursor-pointer rounded-full border border-white/10 bg-neutral-800 px-2.5 py-1 text-[11px] text-neutral-200 outline-none"
+              className="min-h-[28px] cursor-pointer rounded-full border border-white/15 bg-neutral-800 px-2.5 py-1 text-[11px] text-neutral-100 outline-none"
             >
               <option value={0}>{t(profile.lang, "allOption")}</option>
               <option value={6}>6</option>
@@ -392,11 +403,11 @@ export function CatalogExplorer({
               disabled={!canPrev}
               onClick={() => onPageChange(page - 1)}
               aria-label="Previous page"
-              className="rounded-full bg-neutral-800 px-2.5 py-1 text-white transition hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-40"
+              className="flex min-h-[28px] min-w-[28px] items-center justify-center rounded-full bg-neutral-800 px-2.5 py-1 text-white transition hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-40"
             >
               <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
-            <span className="px-2 font-mono text-[11px] text-neutral-300">
+            <span className="px-2 font-mono text-[11px] text-neutral-200">
               {t(profile.lang, "pageLabel")} {page}
             </span>
             <button
@@ -404,7 +415,7 @@ export function CatalogExplorer({
               disabled={!canNext}
               onClick={() => onPageChange(page + 1)}
               aria-label="Next page"
-              className="rounded-full bg-neutral-800 px-2.5 py-1 text-white transition hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-40"
+              className="flex min-h-[28px] min-w-[28px] items-center justify-center rounded-full bg-neutral-800 px-2.5 py-1 text-white transition hover:bg-neutral-700 disabled:pointer-events-none disabled:opacity-40"
             >
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
@@ -421,16 +432,16 @@ export function CatalogExplorer({
               aria-hidden="true"
             />
             <div>
-              <h4 className="font-display text-sm font-bold text-white">
+              <h3 className="font-display text-sm font-bold text-white">
                 {t(profile.lang, "errorTitle")}
-              </h4>
-              <p className="mt-0.5 text-xs text-neutral-300">{errorMessage}</p>
+              </h3>
+              <p className="mt-0.5 text-xs text-neutral-200">{errorMessage}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onRetry}
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand-red px-5 py-2 font-display text-xs font-bold uppercase text-white transition hover:bg-red-700"
+            className="flex min-h-[32px] shrink-0 items-center gap-1.5 rounded-full bg-[#C80812] px-5 py-2 font-display text-xs font-bold uppercase text-white transition hover:bg-[#A8060E]"
           >
             <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{t(profile.lang, "retryBtn")}</span>

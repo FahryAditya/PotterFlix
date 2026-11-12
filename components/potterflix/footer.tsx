@@ -303,9 +303,9 @@ export function Footer() {
           <div className="grid grid-cols-1 gap-8 pb-12 sm:grid-cols-2 lg:grid-cols-[1.45fr_1fr_1fr_1.1fr] lg:gap-10">
             {/* Column 1: Newsletter (Owl Post) */}
             <div>
-              <h4 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
+              <h2 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
                 {t(profile.lang, "newsletterTitle")}
-              </h4>
+              </h2>
               <form
                 onSubmit={handleSubscribe}
                 noValidate
@@ -322,11 +322,11 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t(profile.lang, "emailPlaceholder")}
                   required
-                  className="w-full rounded-md border border-white/[0.08] bg-[#1E1E26] px-3.5 py-2.5 text-xs text-white outline-none transition placeholder:text-[#767680] focus:border-brand-red focus:bg-[#252530] focus:shadow-[0_0_0_3px_rgba(229,9,20,0.22)]"
+                  className="w-full rounded-md border border-white/[0.08] bg-[#1E1E26] px-3.5 py-2.5 text-xs text-white outline-none transition placeholder:text-[#9CA3AF] focus:border-brand-red focus:bg-[#252530] focus:shadow-[0_0_0_3px_rgba(229,9,20,0.22)]"
                 />
                 <button
                   type="submit"
-                  className="cursor-pointer rounded-[5px] bg-gradient-to-r from-[#B20710] to-[#E50914] px-6 py-2.5 font-display text-[11px] font-bold uppercase tracking-widest text-white shadow-[0_4px_14px_rgba(229,9,20,0.32)] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_20px_rgba(229,9,20,0.5)] active:translate-y-0"
+                  className="cursor-pointer rounded-[5px] bg-gradient-to-r from-[#A5060F] to-[#C80812] px-6 py-2.5 font-display text-[11px] font-bold uppercase tracking-widest text-white shadow-[0_4px_14px_rgba(229,9,20,0.32)] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_20px_rgba(229,9,20,0.5)] active:translate-y-0"
                 >
                   {t(profile.lang, "subscribeBtn")}
                 </button>
@@ -335,15 +335,15 @@ export function Footer() {
 
             {/* Column 2: Ministry & Terms */}
             <div>
-              <h4 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
+              <h2 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
                 {t(profile.lang, "termsTitle")}
-              </h4>
-              <ul className="flex flex-col gap-2">
+              </h2>
+              <ul className="flex flex-col gap-1.5">
                 <li>
                   <button
                     type="button"
                     onClick={() => scrollToTarget("#top")}
-                    className="inline-block text-left text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-left text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkDecree")}
                   </button>
@@ -352,7 +352,7 @@ export function Footer() {
                   <button
                     type="button"
                     onClick={() => scrollToTarget("#catalogSection")}
-                    className="inline-block text-left text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-left text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkAccess")}
                   </button>
@@ -365,7 +365,7 @@ export function Footer() {
                         "Gringotts Privacy Vault: All favorites are stored locally in your browser."
                       )
                     }
-                    className="inline-block text-left text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-left text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkGringotts")}
                   </button>
@@ -384,7 +384,7 @@ export function Footer() {
                       showToast("PotterFlix Owl Network connected.");
                     }}
                     aria-label="Facebook"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06] text-white transition hover:scale-110 hover:bg-brand-red"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.08] text-white transition hover:scale-110 hover:bg-[#C80812]"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -403,7 +403,7 @@ export function Footer() {
                       showToast("Daily Prophet Visual Feed active.");
                     }}
                     aria-label="Instagram"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06] text-white transition hover:scale-110 hover:bg-brand-red"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.08] text-white transition hover:scale-110 hover:bg-[#C80812]"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -431,15 +431,15 @@ export function Footer() {
 
             {/* Column 3: Wizarding Archive */}
             <div>
-              <h4 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
+              <h2 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
                 {t(profile.lang, "infoTitle")}
-              </h4>
-              <ul className="flex flex-col gap-2">
+              </h2>
+              <ul className="flex flex-col gap-1.5">
                 <li>
                   <button
                     type="button"
                     onClick={() => scrollToTarget("#catalogSection")}
-                    className="inline-block text-left text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-left text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkFaqs")}
                   </button>
@@ -448,7 +448,7 @@ export function Footer() {
                   <button
                     type="button"
                     onClick={() => scrollToTarget("#top")}
-                    className="inline-block text-left text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-left text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkAbout")}
                   </button>
@@ -458,18 +458,18 @@ export function Footer() {
                     href="https://github.com/fedeperin/potterapi"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-xs text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-xs text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     {t(profile.lang, "linkApi")}
                   </a>
                 </li>
               </ul>
-              <div className="mt-4 space-y-0.5 text-[11.5px] leading-relaxed text-[#B3B3B3]">
+              <div className="mt-4 space-y-0.5 text-[11.5px] leading-relaxed text-[#C4C4CC]">
                 <p>Owl-Line: 0800 934 934</p>
                 <p>
                   <a
                     href="mailto:owlpost@potterflix.io"
-                    className="inline-block text-[#B3B3B3] transition hover:translate-x-0.5 hover:text-white"
+                    className="inline-flex min-h-[24px] items-center text-[#C4C4CC] transition hover:translate-x-0.5 hover:text-white"
                   >
                     owlpost@potterflix.io
                   </a>
@@ -479,10 +479,10 @@ export function Footer() {
 
             {/* Column 4: Headquarters */}
             <div>
-              <h4 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
+              <h2 className="mb-4 font-display text-sm font-bold tracking-tight text-white">
                 {t(profile.lang, "contactTitle")}
-              </h4>
-              <div className="text-[11.5px] leading-relaxed text-[#B3B3B3]">
+              </h2>
+              <div className="text-[11.5px] leading-relaxed text-[#C4C4CC]">
                 <p className="font-semibold text-white">PotterFlix Streaming</p>
                 <p>{t(profile.lang, "registryNo")}</p>
                 <p className="mt-3 font-semibold text-white">
@@ -506,7 +506,7 @@ export function Footer() {
                   <strong className="block font-display text-[10px] tracking-wider text-white">
                     MINISTRY
                   </strong>
-                  <small className="block text-[9px] text-[#767680]">
+                  <small className="block text-[9px] text-[#9CA3AF]">
                     VERIFIED
                   </small>
                 </div>
@@ -521,7 +521,7 @@ export function Footer() {
                   <strong className="block font-display text-[10px] tracking-wider text-white">
                     POTTERAPI
                   </strong>
-                  <small className="block text-[9px] text-[#767680]">
+                  <small className="block text-[9px] text-[#9CA3AF]">
                     v1 LIVE
                   </small>
                 </div>
@@ -530,7 +530,7 @@ export function Footer() {
 
             {/* Center Legal + 7 Language Flags + Copyright */}
             <div className="text-center">
-              <p className="mb-3 text-[10.5px] leading-relaxed text-[#B3B3B3]">
+              <p className="mb-3 text-[10.5px] leading-relaxed text-[#C4C4CC]">
                 {t(profile.lang, "legalLine1")}
                 <br />
                 owlpost@potterflix.io, 0800 934 934
@@ -552,10 +552,10 @@ export function Footer() {
                       aria-label={item.label}
                       aria-pressed={active}
                       className={cn(
-                        "cursor-pointer rounded border px-1.5 py-1 text-sm leading-none transition duration-150 hover:scale-115 hover:opacity-100",
+                        "inline-flex min-h-[28px] min-w-[28px] cursor-pointer items-center justify-center rounded border px-1.5 py-1 text-sm leading-none transition duration-150 hover:scale-115 hover:opacity-100",
                         active
-                          ? "border-brand-red bg-brand-red/15 opacity-100 shadow-[0_0_10px_rgba(229,9,20,0.45)]"
-                          : "border-transparent bg-white/5 opacity-65"
+                          ? "border-brand-red bg-brand-red/20 opacity-100 shadow-[0_0_10px_rgba(229,9,20,0.45)]"
+                          : "border-transparent bg-white/5 opacity-85"
                       )}
                     >
                       {item.flag}
@@ -564,7 +564,7 @@ export function Footer() {
                 })}
               </div>
 
-              <p className="text-[10px] text-[#767680]">
+              <p className="text-[10px] text-[#9CA3AF]">
                 {t(profile.lang, "copyright")}
               </p>
             </div>

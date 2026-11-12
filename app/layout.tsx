@@ -33,6 +33,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${montserrat.variable} ${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link
+          rel="preconnect"
+          href="https://potterapi-fedeperin.vercel.app"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#121212] text-white font-sans selection:bg-[#E50914] selection:text-white">
         <MotionProvider>
           <SmoothScrollProvider>{children}</SmoothScrollProvider>

@@ -1,11 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CatalogExplorer } from "@/components/potterflix/catalog-explorer";
-import { DetailModal } from "@/components/potterflix/detail-modal";
 import { Footer } from "@/components/potterflix/footer";
 import { HeroBanner } from "@/components/potterflix/hero-banner";
-import { MyListModal } from "@/components/potterflix/my-list-modal";
 import { Navbar } from "@/components/potterflix/navbar";
 import { SpellSandbox } from "@/components/potterflix/spell-sandbox";
 import { ToastNotification } from "@/components/potterflix/toast";
@@ -20,11 +19,29 @@ import type {
   SortOption,
 } from "@/types/potter";
 
+const DetailModal = dynamic(
+  () =>
+    import("@/components/potterflix/detail-modal").then((m) => m.DetailModal),
+  { ssr: false }
+);
+
+const MyListModal = dynamic(
+  () =>
+    import("@/components/potterflix/my-list-modal").then((m) => m.MyListModal),
+  { ssr: false }
+);
+
+interface PotterFlixExplorerProps {
+  initialBooks?: NormalizedPotterItem[];
+}
+
 /**
- * Main PotterFlix client orchestrator combining 7-language PotterAPI data fetching,
- * multi-tier filtering, sorting, searching, localStorage favorites, and GSAP/Framer motion.
+ * Main PotterFlix client orchestrator combining SSR-seeded initial books for
+ * fast LCP with 7-language PotterAPI fetching, filtering, and localStorage state.
  */
-export function PotterFlixExplorer() {
+export function PotterFlixExplorer({
+  initialBooks = [],
+}: PotterFlixExplorerProps) {
   const {
     hydrated,
     profile,
@@ -32,6 +49,11 @@ export function PotterFlixExplorer() {
     hydrateFromStorage,
     setActiveEndpoint,
   } = usePotterStore();
+
+  const hasInitialBooks = initialBooks.length > 0;
+  const skippedInitialHero = useRef(false);
+  const skippedInitialTrends = useRef(false);
+  const skippedInitialCatalog = useRef(false);
 
   // Catalog State
   const [tier2Filter, setTier2Filter] = useState("all");
@@ -43,19 +65,23 @@ export function PotterFlixExplorer() {
   const [page, setPage] = useState(1);
 
   const [catalogRecords, setCatalogRecords] = useState<NormalizedPotterItem[]>(
-    []
+    () => (hasInitialBooks ? initialBooks.slice(0, 12) : [])
   );
-  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogLoading, setCatalogLoading] = useState(!hasInitialBooks);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
 
   // Hero & Trends State
-  const [heroSlides, setHeroSlides] = useState<NormalizedPotterItem[]>([]);
+  const [heroSlides, setHeroSlides] = useState<NormalizedPotterItem[]>(() =>
+    hasInitialBooks ? initialBooks.slice(0, 4) : []
+  );
   const [trendSource, setTrendSource] = useState<"books" | "characters">(
     "books"
   );
-  const [trendItems, setTrendItems] = useState<NormalizedPotterItem[]>([]);
-  const [trendsLoading, setTrendsLoading] = useState(true);
+  const [trendItems, setTrendItems] = useState<NormalizedPotterItem[]>(() =>
+    hasInitialBooks ? initialBooks.slice(0, 10) : []
+  );
+  const [trendsLoading, setTrendsLoading] = useState(!hasInitialBooks);
 
   // Spells Sandbox Pool
   const [spellsPool, setSpellsPool] = useState<NormalizedPotterItem[]>([]);
@@ -76,6 +102,16 @@ export function PotterFlixExplorer() {
   // Load Hero Slides (books) whenever language changes
   useEffect(() => {
     if (!hydrated) return;
+    if (
+      !skippedInitialHero.current &&
+      hasInitialBooks &&
+      profile.lang === "en"
+    ) {
+      skippedInitialHero.current = true;
+      return;
+    }
+    skippedInitialHero.current = true;
+
     let active = true;
 
     const loadHero = async () => {
@@ -100,11 +136,22 @@ export function PotterFlixExplorer() {
     return () => {
       active = false;
     };
-  }, [hydrated, profile.lang]);
+  }, [hydrated, hasInitialBooks, profile.lang]);
 
   // Load Trends Carousel
   useEffect(() => {
     if (!hydrated) return;
+    if (
+      !skippedInitialTrends.current &&
+      hasInitialBooks &&
+      profile.lang === "en" &&
+      trendSource === "books"
+    ) {
+      skippedInitialTrends.current = true;
+      return;
+    }
+    skippedInitialTrends.current = true;
+
     let active = true;
 
     const loadTrends = async () => {
@@ -132,7 +179,7 @@ export function PotterFlixExplorer() {
     return () => {
       active = false;
     };
-  }, [hydrated, profile.lang, trendSource]);
+  }, [hydrated, hasInitialBooks, profile.lang, trendSource]);
 
   // Load Spells Pool for Sandbox
   useEffect(() => {
@@ -164,6 +211,21 @@ export function PotterFlixExplorer() {
   // Load Main Catalog Data
   useEffect(() => {
     if (!hydrated) return;
+    if (
+      !skippedInitialCatalog.current &&
+      hasInitialBooks &&
+      profile.lang === "en" &&
+      activeEndpoint === "books" &&
+      !debouncedSearch &&
+      max === 12 &&
+      page === 1 &&
+      retryToken === 0
+    ) {
+      skippedInitialCatalog.current = true;
+      return;
+    }
+    skippedInitialCatalog.current = true;
+
     let active = true;
 
     const loadCatalog = async () => {
@@ -205,6 +267,7 @@ export function PotterFlixExplorer() {
     };
   }, [
     hydrated,
+    hasInitialBooks,
     profile.lang,
     activeEndpoint,
     debouncedSearch,

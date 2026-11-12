@@ -11,7 +11,7 @@ interface PosterImageProps {
   fallbackSubtitle?: string;
   className?: string;
   sizes?: string;
-  priority?: boolean;
+  isLcp?: boolean;
 }
 
 /**
@@ -24,7 +24,7 @@ export function PosterImage({
   fallbackSubtitle = "",
   className,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw",
-  priority = false,
+  isLcp = false,
 }: PosterImageProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const effectiveSrc =
@@ -39,7 +39,9 @@ export function PosterImage({
       alt={alt}
       fill
       sizes={sizes}
-      priority={priority}
+      preload={isLcp}
+      loading={isLcp ? "eager" : undefined}
+      fetchPriority={isLcp ? "high" : undefined}
       unoptimized={isDataUri}
       onError={() => setFailedSrc(src)}
       className={className}

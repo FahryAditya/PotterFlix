@@ -103,20 +103,34 @@
     );
 }
 
-/* Skeleton Shimmer */
+/* GPU-Composited Skeleton Shimmer */
 @keyframes shimmer {
   0% {
-    background-position: -200% 0;
+    transform: translate3d(-100%, 0, 0);
   }
   100% {
-    background-position: 200% 0;
+    transform: translate3d(100%, 0, 0);
   }
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #1b1b1e 25%, #27272c 50%, #1b1b1e 75%);
-  background-size: 200% 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #1b1b1e;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
   animation: shimmer 1.4s infinite linear;
+  will-change: transform;
 }
 
 /* Footer Landscape Ambient Animations */

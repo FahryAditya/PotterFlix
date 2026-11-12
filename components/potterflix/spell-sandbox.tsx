@@ -106,7 +106,7 @@ export function SpellSandbox({ spellsPool }: SpellSandboxProps) {
               type="button"
               disabled={casting}
               onClick={handleCastRandomSpell}
-              className="flex items-center gap-2 rounded-full bg-brand-red px-6 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(229,9,20,0.45)] transition hover:bg-red-700 active:scale-95 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-full bg-[#C80812] px-6 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(229,9,20,0.45)] transition hover:bg-[#A8060E] active:scale-95 disabled:opacity-60"
             >
               <Zap className="h-3.5 w-3.5" aria-hidden="true" />
               <span>{t(profile.lang, "castSpellBtn")}</span>

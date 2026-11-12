@@ -158,7 +158,7 @@ export function Navbar({
                 />
               )}
               <span>{t(profile.lang, "navMyList")}</span>
-              <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-brand-red px-1 text-[10px] font-bold text-white shadow-[0_0_10px_rgba(229,9,20,0.75)]">
+              <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#C80812] px-1 text-[10px] font-bold text-white shadow-[0_0_10px_rgba(229,9,20,0.75)]">
                 {totalFavorites}
               </span>
             </button>
@@ -186,7 +186,7 @@ export function Navbar({
                 }
               }}
               aria-label="Toggle API search"
-              className="z-10 p-2 text-neutral-300 transition hover:text-white"
+              className="z-10 flex min-h-[32px] min-w-[32px] items-center justify-center p-2 text-neutral-200 transition hover:text-white"
             >
               <Search className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -195,9 +195,11 @@ export function Navbar({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
+              tabIndex={searchOpen ? 0 : -1}
+              aria-label={t(profile.lang, "searchPlaceholder")}
               placeholder={t(profile.lang, "searchPlaceholder")}
               className={cn(
-                "bg-transparent py-1.5 text-xs text-white outline-none transition-all duration-300 placeholder:text-neutral-500",
+                "bg-transparent py-1.5 text-xs text-white outline-none transition-all duration-300 placeholder:text-neutral-400",
                 searchOpen
                   ? "w-36 pr-2 opacity-100 sm:w-48"
                   : "pointer-events-none w-0 opacity-0"
@@ -208,7 +210,7 @@ export function Navbar({
                 type="button"
                 onClick={() => onSearchChange("")}
                 aria-label="Clear search"
-                className="pr-2.5 text-neutral-400 hover:text-white"
+                className="mr-1 flex h-6 w-6 items-center justify-center rounded-full text-neutral-300 hover:text-white"
               >
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
@@ -261,8 +263,8 @@ export function Navbar({
                         className={cn(
                           "flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-xs transition",
                           l.code === profile.lang
-                            ? "bg-brand-red font-bold text-white"
-                            : "text-neutral-300 hover:bg-white/10"
+                            ? "bg-[#C80812] font-bold text-white"
+                            : "text-neutral-200 hover:bg-white/10"
                         )}
                       >
                         <span>{l.native}</span>
@@ -303,10 +305,10 @@ export function Navbar({
               type="button"
               onClick={() => handleNavClick(item.key)}
               className={cn(
-                "shrink-0 rounded-full px-3 py-1 transition",
+                "min-h-[28px] shrink-0 rounded-full px-3 py-1 transition",
                 isActive
-                  ? "border border-brand-red/40 bg-brand-red/20 text-white"
-                  : "text-neutral-400"
+                  ? "border border-brand-red/50 bg-brand-red/25 text-white"
+                  : "text-neutral-300 hover:text-white"
               )}
             >
               {t(profile.lang, item.labelKey)}
@@ -316,10 +318,10 @@ export function Navbar({
         <button
           type="button"
           onClick={() => handleNavClick("mylist")}
-          className="flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-neutral-400"
+          className="flex min-h-[28px] shrink-0 items-center gap-1 rounded-full px-3 py-1 text-neutral-300 hover:text-white"
         >
           <span>{t(profile.lang, "navMyList")}</span>
-          <span className="rounded-full bg-brand-red px-1.5 text-[9px] text-white">
+          <span className="rounded-full bg-[#C80812] px-1.5 text-[9px] font-bold text-white">
             {totalFavorites}
           </span>
         </button>
