@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+:root {
+  --bg-canvas: #121212;
+  --bg-surface: #1e1e1e;
+  --accent-primary: #e50914;
+  --accent-rating: #f5b50a;
+  --ease-expo-out: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@theme inline {
+  --color-background: var(--bg-canvas);
+  --color-foreground: #ffffff;
+  --color-brand-red: #e50914;
+  --color-brand-gold: #f5b50a;
+  --color-brand-dark: #121212;
+  --color-brand-surface: #1a1a1a;
+  --color-brand-card: #1e1e1e;
+  --color-brand-muted: #6e6e73;
+  --color-brand-subtext: #a3a3a3;
+  --font-display: var(--font-montserrat), sans-serif;
+  --font-sans: var(--font-jakarta), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e50914;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Scroll-Morphing Glassmorphism */
+.glass-nav-top {
+  background: linear-gradient(
+    180deg,
+    rgba(18, 18, 18, 0.88) 0%,
+    rgba(18, 18, 18, 0.35) 65%,
+    rgba(18, 18, 18, 0) 100%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+}
+
+.glass-nav-scrolled {
+  background: rgba(18, 18, 18, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.72);
+}
+
+.glass-popover {
+  background: rgba(22, 22, 24, 0.94);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.88);
+}
+
+.glass-btn {
+  background: rgba(25, 25, 25, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.glass-btn:hover {
+  background: rgba(229, 9, 20, 0.9);
+  border-color: #e50914;
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.55);
+}
+
+/* Hero Vignette */
+.hero-vignette {
+  background: linear-gradient(
+      180deg,
+      rgba(18, 18, 18, 0.25) 0%,
+      rgba(18, 18, 18, 0.74) 68%,
+      #121212 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(18, 18, 18, 0.96) 0%,
+      rgba(18, 18, 18, 0.68) 46%,
+      rgba(18, 18, 18, 0.08) 100%
+    );
+}
+
+/* Skeleton Shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #1b1b1e 25%, #27272c 50%, #1b1b1e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* Footer Landscape Ambient Animations */
+.pf-snitch {
+  animation: pfSnitchFloat 4.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.pf-snitch__wing-left {
+  animation: pfWingFlutterLeft 0.35s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: right center;
+}
+
+.pf-snitch__wing-right {
+  animation: pfWingFlutterRight 0.35s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+
+.pf-astrolabe-spokes {
+  animation: pfAstrolabeSpin 28s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes pfSnitchFloat {
+  0%,
+  100% {
+    transform: translate(935px, 58px) rotate(-2deg);
+  }
+  50% {
+    transform: translate(935px, 46px) rotate(2deg);
+  }
+}
+
+@keyframes pfWingFlutterLeft {
+  from {
+    transform: rotate(-10deg) scaleX(1);
+  }
+  to {
+    transform: rotate(14deg) scaleX(0.85);
+  }
+}
+
+@keyframes pfWingFlutterRight {
+  from {
+    transform: rotate(10deg) scaleX(1);
+  }
+  to {
+    transform: rotate(-14deg) scaleX(0.85);
+  }
+}
+
+@keyframes pfAstrolabeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-snitch,
+  .pf-snitch__wing-left,
+  .pf-snitch__wing-right,
+  .pf-astrolabe-spokes {
+    animation: none !important;
+  }
+}
+
+body {
+  background: #121212;
+  color: #ffffff;
+}
