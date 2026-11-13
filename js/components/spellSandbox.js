@@ -1,5 +1,11 @@
 /**
- * PotterFlix — Arcane Spell Sandbox Component
+ * ============================================================================
+ * File: js/components/spellSandbox.js
+ * Deskripsi: Komponen pengendali Sandbox Mantra Interaktif (Arcane Spell Sandbox).
+ *            Memungkinkan pengguna memicu mantra acak ("Cast Random Spell") dengan
+ *            animasi pulse pada visualizer sigil SVG magis, serta menyimpan mantra
+ *            ke dalam kategori favorit di LocalStorage.
+ * ============================================================================
  */
 
 import { $ } from '../utils/dom.js';
@@ -10,12 +16,16 @@ import { normalizeItem } from '../utils/formatters.js';
 
 export class SpellSandboxController {
   /**
-   * @param {object} options
-   * @param {Function} options.onFavoriteChange Trigger favorite state update
+   * Konstruktor inisialisasi SpellSandboxController.
+   * 
+   * @param {object} options - Konfigurasi callback event
+   * @param {Function} options.onFavoriteChange - Callback saat status bookmark mantra diubah
    */
   constructor({ onFavoriteChange }) {
+    // 1. Simpan handler callback
     this.onFavoriteChange = onFavoriteChange;
 
+    // 2. Referensi elemen-elemen DOM Sandbox Mantra
     this.spellNameEl = $('#spotlightSpellName');
     this.spellUseEl = $('#spotlightSpellUse');
     this.spellIndexEl = $('#spotlightSpellIndex');
@@ -23,19 +33,26 @@ export class SpellSandboxController {
     this.saveBtn = $('#saveSpotlightSpellBtn');
     this.sigilBox = $('#arcaneSigilBox');
 
-    this.spellsList = [];
-    this.currentSpell = null;
-    this.currentProfile = null;
-    this.currentLang = 'en';
+    // 3. Status internal
+    this.spellsList = [];       // Daftar seluruh mantra dari PotterAPI
+    this.currentSpell = null;   // Mantra yang sedang aktif disorot
+    this.currentProfile = null; // Profil pengguna untuk sinkronisasi bookmark
+    this.currentLang = 'en';    // Bahasa aktif
 
+    // 4. Pasang event listener
     this.bindEvents();
   }
 
+  /**
+   * Mengikat aksi tombol "Cast Random Spell" dan tombol "Save to My List".
+   */
   bindEvents() {
+    // Aksi Klik Tombol "Cast Random Spell": Pilih mantra acak dan picu animasi sigil
     this.castBtn?.addEventListener('click', () => {
       this.castRandomSpell();
     });
 
+    // Aksi Klik Tombol "Save to My List": Simpan atau hapus mantra dari koleksi favorit
     this.saveBtn?.addEventListener('click', () => {
       if (!this.currentSpell || !this.currentProfile) return;
 
@@ -55,32 +72,49 @@ export class SpellSandboxController {
     });
   }
 
+  /**
+   * Mengisi daftar mantra canon yang diperoleh dari PotterAPI.
+   * 
+   * @param {Array<object>} spells - Daftar objek mantra dari API
+   * @param {object} profile - Objek profil pengguna aktif
+   * @param {string} [lang='en'] - Kode bahasa saat ini
+   */
   setSpells(spells, profile, lang = 'en') {
     this.spellsList = spells || [];
     this.currentProfile = profile;
     this.currentLang = lang;
 
+    // Tampilkan mantra pertama sebagai default jika belum ada mantra yang aktif
     if (this.spellsList.length > 0 && !this.currentSpell) {
       this.currentSpell = this.spellsList[0];
       this.renderCurrentSpell();
     }
   }
 
+  /**
+   * Memilih satu mantra acak dari daftar dan memicu animasi pulse pada lingkaran sigil.
+   */
   castRandomSpell() {
     if (this.spellsList.length === 0) return;
 
-    // Trigger pulse visualizer animation
+    // 1. Picu animasi pulse pada visualizer rune sigil magis (reset class untuk trigger reflow)
     if (this.sigilBox) {
       this.sigilBox.classList.remove('spell-cast-active');
-      void this.sigilBox.offsetWidth; // Force reflow
+      void this.sigilBox.offsetWidth; // Paksa DOM reflow agar animasi dapat berulang
       this.sigilBox.classList.add('spell-cast-active');
     }
 
+    // 2. Pilih indeks acak
     const randomIndex = Math.floor(Math.random() * this.spellsList.length);
     this.currentSpell = this.spellsList[randomIndex];
+
+    // 3. Render teks mantra ke layar
     this.renderCurrentSpell();
   }
 
+  /**
+   * Merender nama mantra, kegunaan, dan indeks canonical ke elemen HTML.
+   */
   renderCurrentSpell() {
     if (!this.currentSpell) return;
 
@@ -98,6 +132,9 @@ export class SpellSandboxController {
     this.updateSaveButton();
   }
 
+  /**
+   * Memperbarui status tombol bookmark ("Save to My List" vs "In My List").
+   */
   updateSaveButton() {
     if (!this.currentSpell || !this.currentProfile || !this.saveBtn) return;
 
@@ -119,6 +156,12 @@ export class SpellSandboxController {
     }
   }
 
+  /**
+   * Memperbarui profil pengguna secara reaktif.
+   * 
+   * @param {object} profile - Profil pengguna terbaru
+   * @param {string} [lang] - Kode bahasa jika ada perubahan
+   */
   updateProfile(profile, lang) {
     this.currentProfile = profile;
     if (lang) this.currentLang = lang;

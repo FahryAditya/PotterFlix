@@ -1,5 +1,12 @@
 /**
- * PotterFlix — Multi-Tier Catalog & Resource Explorer Component
+ * ============================================================================
+ * File: js/components/catalog.js
+ * Deskripsi: Komponen pengendali utama Katalog Ensiklopedia Dunia Sihir.
+ *            Mengimplementasikan sistem filter bertingkat (Tier 1: Endpoint utama,
+ *            Tier 2: Sub-filter dinamis seperti Asrama / Era / Tipe Mantra,
+ *            Tier 3: Pencarian dan batasan limit), sorting dinamis, pagination API,
+ *            loading skeleton shimmer, serta penanganan error state dengan tombol Retry.
+ * ============================================================================
  */
 
 import { $, $$, debounce } from '../utils/dom.js';
@@ -9,16 +16,20 @@ import { t } from '../config/i18n.js';
 
 export class CatalogController {
   /**
-   * @param {object} options
-   * @param {Function} options.onRequestData Callback when filters, search, or pagination change
-   * @param {Function} options.onItemClick Detailed view trigger
-   * @param {Function} options.onFavoriteChange Favorite state change trigger
+   * Konstruktor inisialisasi CatalogController.
+   * 
+   * @param {object} options - Konfigurasi callback event
+   * @param {Function} options.onRequestData - Callback saat filter/search/pagination berubah dan perlu fetch data baru
+   * @param {Function} options.onItemClick - Callback saat kartu diklik untuk membuka modal inspeksi (?index=)
+   * @param {Function} options.onFavoriteChange - Callback saat status bookmark kartu diubah
    */
   constructor({ onRequestData, onItemClick, onFavoriteChange }) {
+    // 1. Simpan handler callback
     this.onRequestData = onRequestData;
     this.onItemClick = onItemClick;
     this.onFavoriteChange = onFavoriteChange;
 
+    // 2. Referensi elemen-elemen DOM katalog
     this.gridEl = $('#catalogGrid');
     this.titleEl = $('#catalogSectionTitle');
     this.countBadgeEl = $('#catalogCountBadge');
@@ -38,24 +49,28 @@ export class CatalogController {
     this.sectionSearchInput = $('#sectionSearchInput');
     this.sectionSearchClear = $('#sectionSearchClear');
 
-    // State
-    this.currentEndpoint = 'books';
-    this.currentTier2Filter = 'all';
-    this.currentSort = 'default';
-    this.currentMax = 12;
-    this.currentPage = 1;
-    this.currentSearch = '';
-    this.currentLang = 'en';
-    this.currentProfile = null;
-    this.rawItems = [];
-    this.displayedItems = [];
+    // 3. Status filter bertingkat & pagination
+    this.currentEndpoint = 'books';       // Tier 1: 'books', 'characters', 'houses', 'spells'
+    this.currentTier2Filter = 'all';      // Tier 2: Sub-filter dinamis kontekstual
+    this.currentSort = 'default';         // Opsi sorting: 'default', 'az', 'za', 'metricDesc'
+    this.currentMax = 12;                 // Limit pagination PotterAPI (?max=)
+    this.currentPage = 1;                 // Nomor halaman PotterAPI (?page=)
+    this.currentSearch = '';              // Parameter pencarian PotterAPI (?search=)
+    this.currentLang = 'en';              // Bahasa aktif
+    this.currentProfile = null;           // Objek profil pengguna aktif
+    this.rawItems = [];                   // Data mentah hasil fetch
+    this.displayedItems = [];             // Data yang sedang ditampilkan setelah filter & sort
 
+    // 4. Inisialisasi event listener dan pill Tier 2
     this.bindEvents();
     this.renderTier2Pills();
   }
 
+  /**
+   * Mengikat seluruh listener interaksi filter, sort, search, pagination, dan retry.
+   */
   bindEvents() {
-    // Tier 1 endpoint selection
+    // Aksi Klik Tier 1: Memilih kategori utama (Books / Characters / Houses / Spells)
     this.tier1Pills.forEach(pill => {
       pill.addEventListener('click', () => {
         const endpoint = pill.dataset.endpoint;
@@ -64,7 +79,7 @@ export class CatalogController {
       });
     });
 
-    // Reset filters
+    // Aksi Klik "Reset Filters": Mengembalikan semua filter, pencarian, dan pagination ke default
     this.resetFiltersBtn?.addEventListener('click', () => {
       this.currentTier2Filter = 'all';
       this.currentSort = 'default';
@@ -76,20 +91,20 @@ export class CatalogController {
       this.triggerFetch();
     });
 
-    // Sort selection
+    // Aksi Perubahan Dropdown Sort: Urutkan data secara lokal (A-Z, Z-A, Halaman, Default)
     this.sortSelect?.addEventListener('change', () => {
       this.currentSort = this.sortSelect.value;
       this.applyLocalSortAndFilter();
     });
 
-    // Max limit per page
+    // Aksi Perubahan Dropdown Limit (?max): Ubah jumlah item per halaman dan kembali ke halaman 1
     this.apiMaxSelect?.addEventListener('change', () => {
       this.currentMax = Number(this.apiMaxSelect.value);
       this.currentPage = 1;
       this.triggerFetch();
     });
 
-    // Pagination
+    // Aksi Tombol Halaman Sebelumnya (Prev Page): ?page=N-1
     this.prevPageBtn?.addEventListener('click', () => {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -97,12 +112,13 @@ export class CatalogController {
       }
     });
 
+    // Aksi Tombol Halaman Berikutnya (Next Page): ?page=N+1
     this.nextPageBtn?.addEventListener('click', () => {
       this.currentPage++;
       this.triggerFetch();
     });
 
-    // Section Search
+    // Aksi Input Live Search Seksi Katalog (?search=): Menggunakan debounce 350ms
     this.sectionSearchInput?.addEventListener('input', debounce(() => {
       const query = this.sectionSearchInput.value.trim();
       this.currentSearch = query;
@@ -111,6 +127,7 @@ export class CatalogController {
       this.triggerFetch();
     }, 350));
 
+    // Aksi Klik Tombol Clear Search (X): Bersihkan input dan refresh data
     this.sectionSearchClear?.addEventListener('click', () => {
       if (this.sectionSearchInput) this.sectionSearchInput.value = '';
       this.currentSearch = '';
@@ -120,12 +137,17 @@ export class CatalogController {
       this.sectionSearchInput?.focus();
     });
 
-    // Retry button on error banner
+    // Aksi Klik Tombol Retry pada Error Banner
     this.retryBtn?.addEventListener('click', () => {
       this.triggerFetch();
     });
   }
 
+  /**
+   * Mengganti endpoint Tier 1 aktif dan memperbarui UI terkait.
+   * 
+   * @param {string} endpoint - 'books' | 'characters' | 'houses' | 'spells'
+   */
   setEndpoint(endpoint) {
     this.currentEndpoint = endpoint;
     this.currentTier2Filter = 'all';
@@ -133,7 +155,7 @@ export class CatalogController {
     this.currentSearch = '';
     if (this.sectionSearchInput) this.sectionSearchInput.value = '';
 
-    // Update Tier 1 Active Pills
+    // Perbarui styling tombol pill Tier 1
     this.tier1Pills.forEach(pill => {
       const match = pill.dataset.endpoint === endpoint;
       pill.classList.toggle('bg-brand-red', match);
@@ -143,7 +165,7 @@ export class CatalogController {
       pill.classList.toggle('text-neutral-300', !match);
     });
 
-    // Update Section Title & Tier 2 controls
+    // Perbarui judul seksi ensiklopedia sesuai bahasa
     if (this.titleEl) {
       const titles = {
         books: t(this.currentLang, 'navBooks'),
@@ -154,10 +176,18 @@ export class CatalogController {
       this.titleEl.textContent = titles[endpoint] || 'Wizarding Encyclopedia';
     }
 
+    // Bangun ulang tombol filter Tier 2 yang sesuai dengan kategori terpilih
     this.renderTier2Pills();
     this.triggerFetch();
   }
 
+  /**
+   * Merender tombol sub-filter dinamis (Tier 2) sesuai endpoint yang sedang aktif:
+   * - Karakter: Filter asrama (All, Gryffindor, Slytherin, Ravenclaw, Hufflepuff)
+   * - Buku: Filter era (Classic Saga #1-4 vs Dark War Saga #5-7)
+   * - Mantra: Filter jenis (Charms & Defense vs Curses & Hexes)
+   * - Asrama: All
+   */
   renderTier2Pills() {
     if (!this.tier2Container) return;
 
@@ -192,6 +222,7 @@ export class CatalogController {
       ];
     }
 
+    // Render pill ke dalam DOM
     this.tier2Container.innerHTML = subOptions.map(opt => `
       <button 
         type="button" 
@@ -202,6 +233,7 @@ export class CatalogController {
       </button>
     `).join('');
 
+    // Pasang event klik pada tombol sub-filter Tier 2
     $$('[data-tier2-filter]', this.tier2Container).forEach(btn => {
       btn.addEventListener('click', () => {
         const filterKey = btn.dataset.tier2Filter;
@@ -212,6 +244,9 @@ export class CatalogController {
     });
   }
 
+  /**
+   * Menampilkan loading skeletons dan memicu pemanggilan callback pengambilan data (onRequestData).
+   */
   triggerFetch() {
     this.renderSkeletons();
     this.hideErrorBanner();
@@ -227,34 +262,49 @@ export class CatalogController {
     }
   }
 
+  /**
+   * Memasukkan data baru dari hasil pemanggilan API ke dalam katalog.
+   * 
+   * @param {Array<object>} normalizedItems - Array data yang telah distandardisasi
+   * @param {string} [endpointUrl=''] - URL endpoint yang dipakai (untuk indikator hijau API di UI)
+   * @param {object} [profile=null] - Profil pengguna terbaru
+   */
   setItems(normalizedItems, endpointUrl = '', profile = null) {
     this.rawItems = normalizedItems || [];
     if (profile) this.currentProfile = profile;
 
+    // Tampilkan informasi endpoint aktif pada badge pojok kanan atas
     if (this.endpointBadgeEl) {
       this.endpointBadgeEl.textContent = `GET ${endpointUrl || `/${this.currentLang}/${this.currentEndpoint}`}`;
     }
 
+    // Terapkan filter Tier 2 dan sorting lokal
     this.applyLocalSortAndFilter();
   }
 
+  /**
+   * Melakukan filtering Tier 2 (asrama, era, tipe mantra) dan pengurutan (sorting) data.
+   */
   applyLocalSortAndFilter() {
     let result = [...this.rawItems];
 
-    // Tier 2 Filter
+    // 1. Eksekusi Sub-Filter Tier 2
     if (this.currentTier2Filter !== 'all') {
       if (this.currentEndpoint === 'characters') {
+        // Filter asrama karakter
         result = result.filter(item => {
           const house = (item.raw?.hogwartsHouse || '').toLowerCase();
           return house.includes(this.currentTier2Filter.toLowerCase());
         });
       } else if (this.currentEndpoint === 'books') {
+        // Filter era buku (Classic #1-4 vs Dark #5-7)
         if (this.currentTier2Filter === 'classic') {
           result = result.filter(item => (item.index + 1) <= 4);
         } else if (this.currentTier2Filter === 'dark') {
           result = result.filter(item => (item.index + 1) > 4);
         }
       } else if (this.currentEndpoint === 'spells') {
+        // Filter mantra bertahan vs kutukan gelap
         if (this.currentTier2Filter === 'charms') {
           result = result.filter(item => {
             const use = (item.raw?.use || '').toLowerCase();
@@ -269,7 +319,7 @@ export class CatalogController {
       }
     }
 
-    // Sorting
+    // 2. Eksekusi Pengurutan (Sorting)
     if (this.currentSort === 'az') {
       result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     } else if (this.currentSort === 'za') {
@@ -277,7 +327,7 @@ export class CatalogController {
     } else if (this.currentSort === 'metricDesc') {
       result.sort((a, b) => (b.raw?.pages || 0) - (a.raw?.pages || 0));
     } else {
-      // Default canon order
+      // Urutan index canon asli
       result.sort((a, b) => a.index - b.index);
     }
 
@@ -286,13 +336,18 @@ export class CatalogController {
     this.updatePaginationUI();
   }
 
+  /**
+   * Merender kartu-kartu item ke dalam grid 6 kolom responsif.
+   */
   renderCards() {
     if (!this.gridEl) return;
 
+    // Update jumlah item yang ditemukan
     if (this.countBadgeEl) {
       this.countBadgeEl.textContent = `${this.displayedItems.length} ${t(this.currentLang, 'itemCountSuffix')}`;
     }
 
+    // Jika tidak ada data yang cocok dengan kriteria pencarian/filter
     if (this.displayedItems.length === 0) {
       this.gridEl.innerHTML = `
         <div class="col-span-full py-16 text-center space-y-3">
@@ -304,6 +359,7 @@ export class CatalogController {
       return;
     }
 
+    // Susun markup setiap kartu
     this.gridEl.innerHTML = this.displayedItems.map(item => {
       const favorited = this.currentProfile
         ? isFavorite(this.currentProfile, item.endpoint, item.id)
@@ -323,14 +379,14 @@ export class CatalogController {
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent"></div>
 
-            <!-- Top Badge -->
+            <!-- Lencana Atas -->
             <div class="absolute top-2 left-2 z-10">
               <span class="px-2 py-0.5 rounded text-[9px] font-display font-extrabold bg-brand-red text-white uppercase tracking-wider shadow">
                 ${item.badge}
               </span>
             </div>
 
-            <!-- Bookmark Action Button -->
+            <!-- Tombol Bookmark Cepat -->
             <button 
               type="button" 
               data-fav-action="${item.id}" 
@@ -340,7 +396,7 @@ export class CatalogController {
               <i class="${favorited ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
             </button>
 
-            <!-- Bottom Information -->
+            <!-- Informasi Bawah -->
             <div class="absolute bottom-2.5 left-2.5 right-2.5 z-10 space-y-0.5">
               <div class="flex items-center gap-1.5 text-[10px] text-brand-gold font-bold">
                 <i class="fa-solid fa-star text-[9px]"></i>
@@ -356,12 +412,13 @@ export class CatalogController {
       `;
     }).join('');
 
-    // Bind item click and favorite toggle
+    // Ikat event listener klik pada setiap kartu dan tombol bookmark
     $$('[data-catalog-item-id]', this.gridEl).forEach(card => {
       const itemId = card.dataset.catalogItemId;
       const targetItem = this.displayedItems.find(i => i.id === itemId);
 
       card.addEventListener('click', (e) => {
+        // Jika yang diklik adalah tombol bookmark
         const favBtn = e.target.closest('[data-fav-action]');
         if (favBtn) {
           e.stopPropagation();
@@ -369,6 +426,7 @@ export class CatalogController {
           return;
         }
 
+        // Jika badan kartu diklik: buka modal inspeksi (?index=)
         if (targetItem && this.onItemClick) {
           this.onItemClick(targetItem);
         }
@@ -376,6 +434,11 @@ export class CatalogController {
     });
   }
 
+  /**
+   * Menambah atau menghapus item dari favorit pengguna.
+   * 
+   * @param {object} item - Item target
+   */
   toggleFavorite(item) {
     if (!item || !this.currentProfile) return;
 
@@ -392,12 +455,21 @@ export class CatalogController {
     if (this.onFavoriteChange) this.onFavoriteChange(this.currentProfile);
   }
 
+  /**
+   * Memperbarui profil pengguna secara reaktif dan memicu render ulang bookmark kartu.
+   * 
+   * @param {object} profile - Objek profil pengguna
+   * @param {string} [lang] - Kode bahasa jika ada perubahan
+   */
   updateProfile(profile, lang) {
     this.currentProfile = profile;
     if (lang) this.currentLang = lang;
     this.renderCards();
   }
 
+  /**
+   * Memperbarui status tombol navigasi pagination (disabled state tombol prev & next).
+   */
   updatePaginationUI() {
     if (this.pageIndicatorText) {
       this.pageIndicatorText.textContent = `Page ${this.currentPage}`;
@@ -406,14 +478,18 @@ export class CatalogController {
       this.prevPageBtn.disabled = this.currentPage <= 1;
     }
     if (this.nextPageBtn) {
-      // If current count < currentMax (or max is 0), disable next button
+      // Nonaktifkan tombol next jika limit = 0 (semua item) atau data yang kembali kurang dari limit
       this.nextPageBtn.disabled = this.currentMax === 0 || this.rawItems.length < this.currentMax;
     }
   }
 
+  /**
+   * Merender placeholder loading skeleton dengan efek shimmer saat data sedang dimuat.
+   */
   renderSkeletons() {
     if (!this.gridEl) return;
     const skeletonCount = this.currentMax > 0 ? Math.min(this.currentMax, 12) : 12;
+
     this.gridEl.innerHTML = Array.from({ length: skeletonCount }).map(() => `
       <div class="space-y-2">
         <div class="aspect-[2/3] rounded-xl skeleton-shimmer border border-white/5"></div>
@@ -423,6 +499,11 @@ export class CatalogController {
     `).join('');
   }
 
+  /**
+   * Menampilkan banner error saat koneksi jaringan ke PotterAPI terputus.
+   * 
+   * @param {string} message - Pesan error
+   */
   showError(message) {
     if (this.errorBannerEl) {
       this.errorBannerEl.classList.remove('hidden');
@@ -435,6 +516,9 @@ export class CatalogController {
     }
   }
 
+  /**
+   * Menyembunyikan banner error saat proses pengambilan data diulang (retry).
+   */
   hideErrorBanner() {
     if (this.errorBannerEl) {
       this.errorBannerEl.classList.add('hidden');

@@ -1,7 +1,21 @@
 /**
- * PotterFlix — 7-Language Adaptive Localization (i18n)
+ * ============================================================================
+ * File: js/config/i18n.js
+ * Deskripsi: Sistem lokalisasi 7 bahasa adaptif (en, es, fr, it, pt, uk, de).
+ *            Menyediakan kamus terjemahan antarmuka lengkap serta fungsi pembantu
+ *            t(langCode, key) untuk pemetaan teks dinamis.
+ * ============================================================================
  */
 
+/**
+ * Daftar 7 bahasa yang didukung oleh aplikasi PotterFlix.
+ * - code: Kode bahasa ISO internal antarmuka web.
+ * - apiCode: Kode bahasa yang dipetakan ke endpoint resmi PotterAPI.
+ * - label: Nama bahasa dalam bahasa Inggris.
+ * - native: Nama bahasa dalam bahasa aslinya.
+ * - flag: Emoji bendera negara untuk visualisasi switcher.
+ * @type {ReadonlyArray<{code: string, apiCode: string, label: string, native: string, flag: string}>}
+ */
 export const SUPPORTED_LANGUAGES = Object.freeze([
   { code: 'en', apiCode: 'en', label: 'English', native: 'English', flag: '🇬🇧' },
   { code: 'es', apiCode: 'es', label: 'Spanish', native: 'Español', flag: '🇪🇸' },
@@ -12,7 +26,15 @@ export const SUPPORTED_LANGUAGES = Object.freeze([
   { code: 'de', apiCode: 'en', label: 'German', native: 'Deutsch', flag: '🇩🇪' }
 ]);
 
+/**
+ * Kamus terjemahan komprehensif untuk seluruh komponen antarmuka web.
+ * Mencakup navigasi, hero showcase, filter bertingkat, kontrol pencarian,
+ * modal dialog detail, profil wizard, serta catatan kaki (footer).
+ */
 export const TRANSLATIONS = Object.freeze({
+  // --------------------------------------------------------------------------
+  // Bahasa Inggris (English - Standar Acuan)
+  // --------------------------------------------------------------------------
   en: {
     navHome: 'Home',
     navBooks: 'Books',
@@ -78,6 +100,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'In My List',
     addToList: 'Add to List'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Spanyol (Español)
+  // --------------------------------------------------------------------------
   es: {
     navHome: 'Inicio',
     navBooks: 'Libros',
@@ -143,6 +169,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'En Mi Lista',
     addToList: 'Guardar'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Prancis (Français)
+  // --------------------------------------------------------------------------
   fr: {
     navHome: 'Accueil',
     navBooks: 'Livres',
@@ -208,6 +238,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'Dans Ma Liste',
     addToList: 'Ajouter'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Italia (Italiano)
+  // --------------------------------------------------------------------------
   it: {
     navHome: 'Home',
     navBooks: 'Libri',
@@ -273,6 +307,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'Nei Preferiti',
     addToList: 'Salva'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Portugis (Português)
+  // --------------------------------------------------------------------------
   pt: {
     navHome: 'Início',
     navBooks: 'Livros',
@@ -338,6 +376,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'Na Lista',
     addToList: 'Salvar'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Ukraina (Українська)
+  // --------------------------------------------------------------------------
   uk: {
     navHome: 'Головна',
     navBooks: 'Книги',
@@ -403,6 +445,10 @@ export const TRANSLATIONS = Object.freeze({
     viewInList: 'У списку',
     addToList: 'До списку'
   },
+
+  // --------------------------------------------------------------------------
+  // Bahasa Jerman (Deutsch)
+  // --------------------------------------------------------------------------
   de: {
     navHome: 'Startseite',
     navBooks: 'Bücher',
@@ -471,12 +517,17 @@ export const TRANSLATIONS = Object.freeze({
 });
 
 /**
- * Helper to fetch translated string with fallback to English and key name.
- * @param {string} langCode Current active language code
- * @param {string} key Dictionary lookup key
- * @returns {string} Localized string
+ * Fungsi pembantu (helper) untuk mengambil teks terjemahan berdasarkan bahasa dan kunci kamus.
+ * Dilengkapi fallback otomatis ke bahasa Inggris dan fallback ke nama kunci jika tidak ditemukan.
+ * 
+ * @param {string} langCode - Kode bahasa yang sedang aktif (misal: 'en', 'es', 'fr', 'id')
+ * @param {string} key - Kunci kamus teks yang ingin diambil (misal: 'navHome', 'heroExploreCta')
+ * @returns {string} Teks terlokalisasi sesuai bahasa yang dipilih
  */
 export function t(langCode, key) {
+  // 1. Ambil kamus bahasa terpilih, atau gunakan bahasa Inggris sebagai fallback utama
   const dictionary = TRANSLATIONS[langCode] || TRANSLATIONS.en;
+
+  // 2. Kembalikan teks terjemahan, atau fallback ke terjemahan bahasa Inggris, atau kembalikan kunci aslinya
   return dictionary[key] || TRANSLATIONS.en[key] || key;
 }

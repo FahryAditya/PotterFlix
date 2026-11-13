@@ -1,5 +1,11 @@
 /**
- * PotterFlix — Wizard Profile & 4-Category Favorites Drawer Modal
+ * ============================================================================
+ * File: js/components/profileModal.js
+ * Deskripsi: Komponen pengendali Dialog Modal Profil Wizard & Drawer Koleksi Favorit.
+ *            Mengatur pengubahan nama wizard yang tersimpan persisten di LocalStorage,
+ *            tab pemfilter 4 kategori (Books, Characters, Houses, Spells), penampilan
+ *            daftar koleksi dengan badge count live, serta penghapusan item/Clear All.
+ * ============================================================================
  */
 
 import { $, $$ } from '../utils/dom.js';
@@ -9,14 +15,18 @@ import { t } from '../config/i18n.js';
 
 export class ProfileModalController {
   /**
-   * @param {object} options
-   * @param {Function} options.onProfileUpdate Callback when profile or favorites change
-   * @param {Function} options.onItemClick Detailed view trigger when clicking a saved favorite
+   * Konstruktor inisialisasi ProfileModalController.
+   * 
+   * @param {object} options - Konfigurasi callback event
+   * @param {Function} options.onProfileUpdate - Callback saat nama penyihir disimpan atau favorit berubah
+   * @param {Function} options.onItemClick - Callback saat item favorit diklik untuk membuka modal inspeksi
    */
   constructor({ onProfileUpdate, onItemClick }) {
+    // 1. Simpan handler callback
     this.onProfileUpdate = onProfileUpdate;
     this.onItemClick = onItemClick;
 
+    // 2. Referensi elemen DOM modal profil & favorit
     this.modalEl = $('#myListModal');
     this.closeBtn = $('#closeMyListModalBtn');
     this.profileForm = $('#wizardProfileForm');
@@ -25,50 +35,61 @@ export class ProfileModalController {
     this.favItemsContainer = $('#favItemsContainer');
     this.clearFavsBtn = $('#clearFavoritesBtn');
 
-    // Counts
+    // 3. Referensi elemen badge counter untuk 4 kategori
     this.favCountBooks = $('#favCountBooks');
     this.favCountCharacters = $('#favCountCharacters');
     this.favCountHouses = $('#favCountHouses');
     this.favCountSpells = $('#favCountSpells');
 
-    this.currentProfile = null;
-    this.currentCategory = 'books';
-    this.currentLang = 'en';
+    // 4. Status internal
+    this.currentProfile = null;      // Objek profil pengguna aktif
+    this.currentCategory = 'books';  // Kategori aktif: 'books', 'characters', 'houses', 'spells'
+    this.currentLang = 'en';         // Bahasa aktif
 
+    // 5. Pasang event listener
     this.bindEvents();
   }
 
+  /**
+   * Mengikat aksi penutupan modal, form submit nama wizard, klik tab kategori, dan tombol Clear All.
+   */
   bindEvents() {
+    // Aksi Klik Tombol Silang (X): Tutup modal
     this.closeBtn?.addEventListener('click', () => this.close());
 
+    // Aksi Klik Backdrop: Tutup modal saat klik area gelap luar
     this.modalEl?.addEventListener('click', (e) => {
       if (e.target === this.modalEl) {
         this.close();
       }
     });
 
+    // Aksi Tombol Keyboard ESC: Tutup modal
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !this.modalEl?.classList.contains('hidden')) {
         this.close();
       }
     });
 
-    // Profile Name Submission
+    // Aksi Submit Form Ganti Nama Wizard
     this.profileForm?.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!this.currentProfile || !this.nameInput) return;
 
       const newName = this.nameInput.value.trim() || 'Harry Potter';
       this.currentProfile.wizardName = newName;
+
+      // Simpan perubahan ke browser LocalStorage
       saveProfile(this.currentProfile);
       showToast(t(this.currentLang, 'nameSavedToast'), 'success');
 
+      // Sinkronisasikan nama ke bilah navbar & avatar
       if (this.onProfileUpdate) {
         this.onProfileUpdate(this.currentProfile);
       }
     });
 
-    // Category Tabs
+    // Aksi Klik Tab Kategori Favorit (Books / Characters / Houses / Spells)
     this.favTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const cat = tab.dataset.favCat;
@@ -77,7 +98,7 @@ export class ProfileModalController {
       });
     });
 
-    // Clear All Favorites
+    // Aksi Klik Tombol "Clear All": Hapus seluruh favorit di ke-4 kategori
     this.clearFavsBtn?.addEventListener('click', () => {
       if (!this.currentProfile) return;
       clearAllFavorites(this.currentProfile);
@@ -85,32 +106,50 @@ export class ProfileModalController {
       this.updateCounts();
       this.renderCategoryItems();
 
+      // Sinkronisasi badge navbar
       if (this.onProfileUpdate) {
         this.onProfileUpdate(this.currentProfile);
       }
     });
   }
 
+  /**
+   * Membuka modal profil & drawer favorit dengan memuat profil pengguna terbaru.
+   * 
+   * @param {object} profile - Objek profil pengguna aktif
+   * @param {string} [lang='en'] - Kode bahasa saat ini
+   */
   open(profile, lang = 'en') {
     this.currentProfile = profile;
     this.currentLang = lang;
 
+    // Isi input nama dengan nama wizard yang tersimpan di LocalStorage
     if (this.nameInput) {
       this.nameInput.value = profile.wizardName || 'Harry Potter';
     }
 
+    // Perbarui angka counter dan buka kategori aktif
     this.updateCounts();
     this.setCategory(this.currentCategory);
     this.modalEl?.classList.remove('hidden');
   }
 
+  /**
+   * Menutup dialog modal profil.
+   */
   close() {
     this.modalEl?.classList.add('hidden');
   }
 
+  /**
+   * Mengganti kategori favorit yang sedang dilihat dan merender ulang kartu itemnya.
+   * 
+   * @param {'books'|'characters'|'houses'|'spells'} category - Kategori yang dipilih
+   */
   setCategory(category) {
     this.currentCategory = category;
 
+    // Perbarui highlight tombol tab aktif
     this.favTabs.forEach(tab => {
       const match = tab.dataset.favCat === category;
       tab.classList.toggle('bg-brand-red', match);
@@ -122,6 +161,9 @@ export class ProfileModalController {
     this.renderCategoryItems();
   }
 
+  /**
+   * Memperbarui badge angka counter untuk masing-masing ke-4 kategori favorit.
+   */
   updateCounts() {
     if (!this.currentProfile?.favorites) return;
 
@@ -139,11 +181,15 @@ export class ProfileModalController {
     }
   }
 
+  /**
+   * Merender daftar item tersimpan pada kategori yang sedang aktif.
+   */
   renderCategoryItems() {
     if (!this.favItemsContainer || !this.currentProfile) return;
 
     const items = this.currentProfile.favorites[this.currentCategory] || [];
 
+    // Jika kategori masih kosong
     if (items.length === 0) {
       this.favItemsContainer.innerHTML = `
         <div class="col-span-full py-10 text-center space-y-2">
@@ -154,6 +200,7 @@ export class ProfileModalController {
       return;
     }
 
+    // Susun baris kartu item tersimpan
     this.favItemsContainer.innerHTML = items.map(item => `
       <div 
         data-fav-item-id="${item.id}"
@@ -169,23 +216,25 @@ export class ProfileModalController {
           <h5 class="font-display font-bold text-xs text-white truncate group-hover:text-brand-red transition">${item.title}</h5>
           <p class="text-[11px] text-neutral-400 truncate">${item.subtitle || ''}</p>
         </div>
+        <!-- Tombol Hapus Satuan dari Favorit -->
         <button 
           type="button" 
           data-remove-fav-id="${item.id}" 
           title="Remove from favorites"
-          class="w-8 h-8 rounded-full bg-white/5 hover:bg-brand-red text-neutral-400 hover:text-white flex items-center justify-center text-xs transition shrink-0"
+          class="w-8 h-8 rounded-full bg-white/5 hover:bg-brand-red text-neutral-400 hover:text-white flex items-center justify-center text-xs transition shrink-0 active:scale-90"
         >
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </div>
     `).join('');
 
-    // Bind item click for inspection and remove button
+    // Ikat event listener klik inspeksi dan klik hapus item
     $$('[data-fav-item-id]', this.favItemsContainer).forEach(row => {
       const itemId = row.dataset.favItemId;
       const targetItem = items.find(i => i.id === itemId);
 
       row.addEventListener('click', (e) => {
+        // Jika yang diklik adalah tombol tong sampah: hapus item
         const removeBtn = e.target.closest('[data-remove-fav-id]');
         if (removeBtn) {
           e.stopPropagation();
@@ -193,6 +242,7 @@ export class ProfileModalController {
           return;
         }
 
+        // Jika badan baris diklik: tutup modal favorit dan buka modal detail
         if (targetItem && this.onItemClick) {
           this.close();
           this.onItemClick(targetItem);
@@ -201,6 +251,11 @@ export class ProfileModalController {
     });
   }
 
+  /**
+   * Menghapus 1 item dari kategori favorit saat ini.
+   * 
+   * @param {string} itemId - ID unik item yang akan dihapus
+   */
   removeItem(itemId) {
     if (!this.currentProfile) return;
 
@@ -209,11 +264,18 @@ export class ProfileModalController {
     this.updateCounts();
     this.renderCategoryItems();
 
+    // Beri tahu orchestrator agar badge counter navbar terupdate
     if (this.onProfileUpdate) {
       this.onProfileUpdate(this.currentProfile);
     }
   }
 
+  /**
+   * Memperbarui profil pengguna secara reaktif.
+   * 
+   * @param {object} profile - Objek profil pengguna terbaru
+   * @param {string} [lang] - Kode bahasa jika ada perubahan
+   */
   updateProfile(profile, lang) {
     this.currentProfile = profile;
     if (lang) this.currentLang = lang;
